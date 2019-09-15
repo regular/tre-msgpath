@@ -1,34 +1,13 @@
-tre-msgpath
----
-
-Like [pathway](https://www.npmjs.com/package/pathway), but for [mutable ssb messages]((https://www.npmjs.com/package/ssb-revisions) and with changes in real-time!
-
-``` js
-const Msgpath = require('tre-msgpath')
-const collect = require('collect-mutations')
-const client = require('tre-cli-client')
-
-client( (err, ssb)=>{
-  const msgpath = Msgpath(ssb)
-  const webapps = MutantArray()
-  pull( ssb.revisions.messagesByType('webapp'), collect(webapps))
-  
-  // webapps contains observablaes for the latest version of each webapp
-  // Each webapp has a icon property which is a message reference to a message of type image
-  // Images have a property file, which in turn has properties type and name.
-
-  const icons = msgpath(webapps, [ ['icon'], ['file', /type|name/']])
-```
-
-License: MIT
-
 const Msgpath = require('.')
 const test = require('tape')
 const Value = require('mutant/value')
+const crypto = require('crypto')
+const pull = require('pull-stream')
 
 test('simple', t=>{
   t.plan(1)
   const ssb = {}
+  const msgpath = Msgpath(ssb)
 
   const root = Value()
   const msg = {

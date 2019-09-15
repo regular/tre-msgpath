@@ -1,7 +1,7 @@
 {
   "name": "tre-msgpath",
   "version": "1.0.0",
-  "description": "",
+  "description": "Like pathway, but for mutable ssb messages",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,11 +10,30 @@
     "type": "git",
     "url": "git+https://github.com/regular/tre-msgpath.git"
   },
-  "keywords": [],
+  "keywords": [
+    "ssb",
+    "tre",
+    "ssb-revisions"
+  ],
   "author": "Jan Bölsche <jan@lagomorph.de> (https://regular.codes/)",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/regular/tre-msgpath/issues"
   },
-  "homepage": "https://github.com/regular/tre-msgpath#readme"
+  "homepage": "https://github.com/regular/tre-msgpath#readme",
+  "dependencies": {
+    "collect-mutations": "^1.0.6",
+    "debug": "^4.1.1",
+    "mutant": "^3.23.0",
+    "observable-linked-list": "^1.0.0",
+    "pathway": "^1.0.1",
+    "ssb-ref": "^2.13.9",
+    "tre-cli-client": "^1.1.0",
+    "tre-prototypes": "^1.9.0",
+    "tre-watch-heads": "^1.1.1"
+  },
+  "devDependencies": {
+    "pull-stream": "^3.6.14",
+    "tape": "^4.11.0"
+  }
 }
