@@ -20,7 +20,9 @@ test('simple', t=>{
   }
 
   const unsubscribe = msgpath(root, [['value', 'content', 'a']])(value => {
-    t.deepEqual(value, [msg, 'bar'], 'chain of values')
+    t.deepEqual(value, [
+      [msg, 'bar']
+    ], 'chain of values')
   })
 
   root.set(msg)
@@ -66,7 +68,9 @@ test('message reference', t=>{
 
   const unsubscribe = msgpath(root, [['value', 'content', 'a'], ['value', 'content', 'b']], opts
   )(value => {
-    t.deepEqual(value, [msg, Object.assign({}, msg2, {meta}), 'baz'], 'chain of values')
+    t.deepEqual(value, [
+      [msg, Object.assign({}, msg2, {meta}), 'baz']
+    ], 'chain of values')
   })
 
   root.set(msg)
@@ -94,7 +98,9 @@ test('function instead of path', t=>{
   }
 
   msgpath(values[0], [f1, f2])(value => {
-    t.deepEqual(value, [1, -2, 'hello'], 'correct result')
+    t.deepEqual(value, [
+      [1, -2, 'hello']
+    ], 'correct result')
   })
 
   values[2].set('hello')
@@ -102,7 +108,30 @@ test('function instead of path', t=>{
   values[0].set(1)
 })
 
-test.only('multiple routes', t=>{
+test('multiple routes', t=>{
+  t.plan(1)
+  const msgpath = Msgpath()
+
+  const value = Value()
+
+  const obj = {
+    x: 1.1, // rounds to 1 -> bar
+    y: 1.6, // rounds to 2 -> foo
+    a: 0    // ignored
+  }
+
+  msgpath(value, [[/[xyz]/]])(value => {
+    console.log(value)
+    t.deepEqual(value, [
+      [obj, obj.x],
+      [obj, obj.y]
+    ])
+  })
+
+  value.set(obj)
+})
+
+test('multiple routes with function returning single value', t=>{
   t.plan(3)
   const msgpath = Msgpath()
 
@@ -118,14 +147,17 @@ test.only('multiple routes', t=>{
   }
 
   function roundRef(x, i) {
-    t.equal(i, 1)
+    t.equal(i, 1, 'called with index 1')
     const idx = Math.round(x)
     return values[idx]
   }
 
   msgpath(values[0], [[/[xyz]/], roundRef])(value => {
     console.log(value)
-    t.deepEqual(value, [obj, [obj.x, obj.y], ['bar', 'foo']])
+    t.deepEqual(value, [
+      [obj, obj.x, 'bar'],
+      [obj, obj.y, 'foo']
+    ])
   })
 
   values[2].set('foo')
