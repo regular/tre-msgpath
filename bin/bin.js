@@ -16,12 +16,18 @@ client( (err, ssb)=>{
   // Images have a property `file`, which in turn has properties `type` and `name`.
 
   const icons = msgpath(webapps, [
-    [true, 'value', 'content', 'icon'],
-    [true, 'value', 'content', ['file', 'blob']]
+    kv => kv.value.content.icon ? kv : null,
+    ['value', 'content', 'icon'],
+    ['value', 'content', ['file', 'blob']]
   ])
 
   const unsubscribe = icons(icons=>{
-    console.dir(icons, {depth: 5})
+    if (!icons) return
+    console.log(' -- ICONS --')
+    icons.forEach( ([webapps, app, image, fileOrBlob]) =>{
+      console.log(app.value.content.name, image.value.content.name, fileOrBlob)
+    })
+    //console.dir(icons, {depth: 5})
   })
   process.on('SIGINT', quit)
   process.on('SIGTERM', quit)

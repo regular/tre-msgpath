@@ -1,6 +1,7 @@
 const Msgpath = require('.')
 const test = require('tape')
 const Value = require('mutant/value')
+const MutantArray = require('mutant/array')
 const crypto = require('crypto')
 const pull = require('pull-stream')
 
@@ -163,6 +164,42 @@ test('multiple routes with function returning single value', t=>{
   values[2].set('foo')
   values[1].set('bar')
   values[0].set(obj)
+})
+
+test('filter mutantarray', t=>{
+  t.plan(2)
+  const msgpath = Msgpath()
+
+  const arr = [
+    {a: 1},
+    {b: 2},
+    {a: 3}
+  ]
+  const obs = MutantArray()
+  
+  let i = 0
+  msgpath(obs, [['a']])(value => {
+    console.log(value)
+    if (i==0) {
+      t.deepEqual(value, [
+        [ [ { a: 1}, {b: 2 }, { a: 3 } ], 1],
+        [ [ { a: 1}, {b: 2 }, { a: 3 } ], 3]
+      ])
+    }
+    if (i==1) {
+      t.deepEqual(value, [
+        [ [ {b: 2 }, { a: 3 } ], 3]
+      ])
+    }
+    if (i==2) {
+      t.deepEqual(value, [
+      ])
+    }
+    i++
+  })
+  obs.set(arr.slice())
+  obs.deleteAt(0)
+  obs.deleteAt(2)
 })
 
 function rndKey() {

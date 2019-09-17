@@ -30,6 +30,7 @@ module.exports = function(ssb) {
         //debug('add chain: %o value: %o source: %o', chain, value, source)
         if (Array.isArray(vs)) {
           return vs.reduce( (acc, {value, source}) =>{
+            if (value == null || value == undefined) return acc
             const subchain = chain.slice()
             const chains = add(subchain, source)
             chains.forEach(c=>c.push(value))
@@ -38,6 +39,7 @@ module.exports = function(ssb) {
           }, [])
         } else {
           const {value, source} = vs
+          if (value == null || value == undefined) return
           let chains = [chain]
           if (source) chains = add(chain, source)
           chains.forEach(c=>c.push(value))
@@ -72,7 +74,10 @@ module.exports = function(ssb) {
       let f
       if (Array.isArray(inObjPath)) {
         // it's a pathway path
-        f = item => pathway(item, inObjPath)
+        f = item => {
+          const ret = pathway(item, inObjPath)
+          return ret
+        }
       } else if (typeof inObjPath == 'function') {
         f = inObjPath
       } else throw new Error(`Unsupported path type: ${typeof inObjsPath}`)
@@ -92,6 +97,7 @@ module.exports = function(ssb) {
           values: arr(f(value, index, opts))
         }]
       }
+      debug('extraction result %o', refs.map(r=>r.values))
       return {
         index,
         refs
@@ -110,7 +116,7 @@ module.exports = function(ssb) {
     }
 
     function r2obs(r, index) {
-      debug('r2obs %d', index)
+      debug('r2obs %d %o', index, r)
       index++
       const {source} = r
       return computed(obsFromRef(r), value => {
@@ -124,6 +130,9 @@ module.exports = function(ssb) {
     }
 
     function obsFromRef({source, values}) {
+      if (values.length == 0) {
+        return Value()
+      }
       if (values.length == 1) {
         return obsFromValue(values[0])
       } else {
@@ -143,6 +152,7 @@ module.exports = function(ssb) {
 }
 
 function arr(a) {
+  if (a==undefined || a==null) return []
   if (Array.isArray(a)) return a
   return [a]
 }
