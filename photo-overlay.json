@@ -1,0 +1,13 @@
+[
+  {"who-am-i": {}},
+  {"role": {}},
+  {"pathway": {"path": ["value", "content", "station"]}},
+  {"deref-msg": {"allowAllAuthors": true}},
+  {"pathway": {"path": ["value", "content", "photo-overlay"]}},
+  {"deref-msg": {"allowAllAuthors": true}},
+  {"pathway": {"path": ["value", "content", "blob"]}},
+  {"debounce": {"ms": 2000}},
+  {"save-blob-to-tmpdir": {}},
+  {"move-file": {"to": "/var/basf/photo-overlay", "clobber": true}}
+]
+

@@ -5,14 +5,16 @@ const computed = require('mutant/computed')
 const debug = require('debug')('tre-msgpath')
 
 const postProcess = require('./lib/post-process')
-const defaultExtractor = require('./lib/pathway-extractor')
+const defaultDefaultExtractor = require('./lib/pathway-extractor')
 const Dereference = require('./lib/dereference-msgref')
 
 module.exports = function(ssb) {
-  obsFromValue = Dereference(ssb)
+  const defaultObsFromValue = Dereference(ssb)
 
   return function(obs, path, opts) {
     opts = opts || {}
+    const defaultExtractor = opts.defaultExtractor || defaultDefaultExtractor
+    const obsFromValue = opts.obsFromValue || defaultObsFromValue
 
     const ll = oll(
       computed(obs, value=>{return {value, index: 0}}),
