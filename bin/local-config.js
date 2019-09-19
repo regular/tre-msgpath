@@ -8,6 +8,11 @@ const client = require('tre-cli-client')
 const Msgpath = require('..')
 const debug = require('debug')('treos-local-config')
 const htime = require('human-time')
+const {Formatter} = require('fomatto')
+const traverse = require('traverse')
+
+function shorten(v,l) { return (v||'').slice(0,l) }
+const format = Formatter({htime: x=>htime(new Date(x)), shorten})
 
 const sourcefile = config._[0]
 if (!sourcefile) {
@@ -15,7 +20,7 @@ if (!sourcefile) {
   process.exit(1)
 }
 
-const stack = JSON.parse(fs.readFileSync(sourcefile))
+const {select, act} = JSON.parse(fs.readFileSync(sourcefile))
 
 client( (err, ssb)=>{
   bail(err)
@@ -23,18 +28,22 @@ client( (err, ssb)=>{
   let unsubscribe = x=>{}
 
   const filters = {}
+  const actions = {}
   const tlc = {
     registerFilter: function(name, f) {
       filters[name] = f
+    },
+    registerAction: function(name, f) {
+      actions[name] = f
     }
   }
 
-  const pluginNames = 'who-am-i role debounce deref-msg move-file pathway save-blob-to-tmpdir'.split(' ')
+  const pluginNames = 'who-am-i role debounce deref-msg move-file pathway save-blob-to-tmpdir log'.split(' ')
   pluginNames.forEach(name=>{
     require(`../plugins/${name}`).register(tlc, ssb, config)
   })
 
-  const fstack = stack.map(filterObj => {
+  const fstack = select.map(filterObj => {
     const label = filterObj.label
     delete filterObj.label
     const filterKeys = Object.keys(filterObj)
@@ -70,27 +79,42 @@ client( (err, ssb)=>{
   const result = msgpath(Value({value: true, label: 'root'}), fstack, {defaultExtractor: x=>{throw new Error('No function in fstack')}, obsFromValue: x=>x})
   unsubscribe = result(chains =>{
     if (!chains) return
-    chains = chains.map(chain=>{
+    const scopes = chains.map(chain=>{
+      const last = chain.slice(-1)[0].value
+      if (nullish(last)) return null
       return chain.reduce( (acc, {value, label})=>{
         if (label) acc[label] = value
         return acc
       }, {})
     })
-    console.log(`${chains.length} chain(s)`)
-    chains.forEach(output)
-    //console.dir(chains, {depth: 4})
+    scopes.forEach(scope=>{
+      if (!nullish(scope)) runActions(scope, (err, result)=>{
+        if (err) return console.error(err.message)
+        console.log(`All actions succeeded. Result: ${result}`)
+      })
+    })
   })
 
-  function output({feed, role, station, station_content, image_key, image_content, blob, filename}) {
-    if (!filename) return
-    const ts = htime(new Date(role.value.timestamp))
-    const author = role.value.author
-    const target = feed == author ? 'self' : feed
-    function shorter(x) {
-      return x.slice(0,6)
+  function runActions(scope, cb) {
+    let index = 0
+    function next(err, lastResult) {
+      if (err) return cb(err)
+      debug(`Result: ${lastResult}`)
+      const actObj = act[index++]
+      if (!actObj) return cb(null, lastResult)
+      const actKeys = Object.keys(actObj)
+      if (actKeys.length !== 1) return cb(new Error('actObj must have one key only'))
+      const actName = actKeys[0]
+      const rawOpts = actObj[actName]
+      const actOpts = traverse(rawOpts).map(function(x) {
+        if (this.isLeaf && typeof x == 'string') this.update(format(x, Object.assign({}, scope, {_: lastResult})))
+      })
+      const action = actions[actName]
+      if (!action) throw new Error(`No action named ${actName}`)
+      debug(`Running ${actName} ${JSON.stringify(actOpts)}`)
+      action(scope, actOpts, rawOpts, next)
     }
-    console.log(`${ts} ${shorter(author)} asigned role "${station_content.name}" (${shorter(station)}) to ${target}`)
-    console.log(`Saved image "${image_content.name}" (${shorter(image_key)}, ${image_content.width}x${image_content.height}px) to ${filename} (blobid: ${blob})`)
+    next(null, null)
   }
 
   process.on('SIGINT', quit)
@@ -112,3 +136,6 @@ client( (err, ssb)=>{
   }
 })
 
+function nullish(x) {
+  return x == null || x == undefined
+}

@@ -1,15 +1,27 @@
-[
-  {"who-am-i": {}, "label": "feed"},
-  {"role": {}, "label":"role"},
-  {"pathway": {"path": ["value", "content", "station"]}, "label":"station"},
-  {"deref-msg": {"allowAllAuthors": true}},
-  {"pathway": {"path": ["value", "content"]}, "label":"station_content"},
-  {"pathway": {"path": ["photo-overlay"]}, "label":"image_key"},
-  {"deref-msg": {"allowAllAuthors": true}},
-  {"pathway": {"path": ["value", "content"]}, "label": "image_content"},
-  {"pathway": {"path": ["blob"]}, "label": "blob"},
-  {"debounce": {"ms": 2000}},
-  {"save-blob-to-tmpdir": {}},
-  {"move-file": {"to": "/var/basf/photo-overlay", "clobber": true}, "label": "filename"}
-]
+{
+  "select": [
+    {"who-am-i": {}, "label": "feed"},
+    {"role": {}, "label":"role"},
+    {"pathway": {"path": ["value", "content", "station"]}, "label":"station"},
+    {"deref-msg": {"allowAllAuthors": true}},
+    {"pathway": {"path": ["value", "content"]}, "label":"station_content"},
+    {"pathway": {"path": ["photo-overlay"]}, "label":"image_key"},
+    {"deref-msg": {"allowAllAuthors": true}},
+    {"pathway": {"path": ["value", "content"]}, "label": "image_content"},
+    {"pathway": {"path": ["blob"]}, "label": "blob"},
+    {"debounce": {"ms": 2000}}
+  ],
+  "act": [
+    {"log": {
+      "priority": 1,
+      "message": "{role.value.timestamp:htime} {role.value.author:shorten(6)} assigned role \"{station_content.name}\" ({station:shorten(6)}) to {feed:shorten(6)}"
+    }},
+    {"save-blob-to-tmpdir": {"blobid":"{blob}"}},
+    {"move-file": {"from": "{_}", "to": "/var/basf/photo-overlay", "clobber": true}},
+    {"log": {
+      "priority": 2,
+      "message": "Saved image \"{image_content.name}\" ({image_key:shorten(6)}, {image_content.width} x {image_content.height} px) to {_} (blobid: {blob})"
+    }}
+  ]
+}
 

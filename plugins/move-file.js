@@ -1,21 +1,16 @@
 const Value = require('mutant/value')
 const mv = require('mv')
 
-module.exports = moveFile
-
-function moveFile({to, mkdirp, clobber}) {
-  if (!to) throw new Error('`to` is a required argument for move-file')
-  return function(source) {
-    if (!source) return
-    const obs = Value()
-    mv(source, to, {mkdirp, clobber}, err =>{
-      obs.set(err || to)
-    })
-    return obs
-  }
-}
-
 module.exports.register = function(tlc, ssb, config) {
-  tlc.registerFilter('move-file', moveFile)
+  tlc.registerAction('move-file', moveFile)
+
+  function moveFile(scope, {from, to, mkdirp, clobber}, rawOpts, cb) {
+    if (!to) return cb(new Error('`to` is a required argument for move-file'))
+    if (!from) return cb(new Error('`from` is a required argument for move-file'))
+    mv(from, to, {mkdirp, clobber}, err=>{
+      if (err) return cb(err)
+      cb(null, to)
+    })
+  }
 }
 
