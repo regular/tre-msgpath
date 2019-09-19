@@ -1,6 +1,6 @@
 {
   "name": "treos-local-config",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Like pathway, but for mutable ssb messages",
   "main": "index.js",
   "bin": {
