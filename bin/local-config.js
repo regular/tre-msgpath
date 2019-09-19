@@ -8,7 +8,7 @@ const client = require('tre-cli-client')
 const Msgpath = require('..')
 const debug = require('debug')('treos-local-config')
 const htime = require('human-time')
-const {Formatter} = require('fomatto')
+const {Formatter} = require('node-fomatto')
 const traverse = require('traverse')
 
 function shorten(v,l) { return (v||'').slice(0,l) }
@@ -123,7 +123,6 @@ client( (err, ssb)=>{
   function quit() {
     console.error('\nclosing')
     unsubscribe()
-    //drain.abort()
     if (ssb) ssb.close()
   }
 

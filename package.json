@@ -1,8 +1,11 @@
 {
-  "name": "tre-msgpath",
+  "name": "treos-local-config",
   "version": "1.0.0",
   "description": "Like pathway, but for mutable ssb messages",
   "main": "index.js",
+  "bin": {
+    "treos-local-config": "bin/local-config"
+  }
   "scripts": {
     "test": "tape test.js"
   },
@@ -22,12 +25,13 @@
   },
   "homepage": "https://github.com/regular/tre-msgpath#readme",
   "dependencies": {
+    "any-shell-escape": "^0.1.1",
     "collect-mutations": "^1.0.6",
     "debug": "^4.1.1",
-    "fomatto": "github:bonsaiden/fomatto",
     "human-time": "0.0.2",
     "mutant": "^3.23.0",
     "mv": "^2.1.1",
+    "node-fomatto": "^0.6.0",
     "observable-linked-list": "^1.0.0",
     "pathway": "^1.0.1",
     "rc": "^1.2.8",
