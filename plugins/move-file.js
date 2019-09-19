@@ -6,6 +6,7 @@ module.exports = moveFile
 function moveFile({to, mkdirp, clobber}) {
   if (!to) throw new Error('`to` is a required argument for move-file')
   return function(source) {
+    if (!source) return
     const obs = Value()
     mv(source, to, {mkdirp, clobber}, err =>{
       obs.set(err || to)

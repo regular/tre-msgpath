@@ -1,13 +1,15 @@
 [
-  {"who-am-i": {}},
-  {"role": {}},
-  {"pathway": {"path": ["value", "content", "station"]}},
+  {"who-am-i": {}, "label": "feed"},
+  {"role": {}, "label":"role"},
+  {"pathway": {"path": ["value", "content", "station"]}, "label":"station"},
   {"deref-msg": {"allowAllAuthors": true}},
-  {"pathway": {"path": ["value", "content", "photo-overlay"]}},
+  {"pathway": {"path": ["value", "content"]}, "label":"station_content"},
+  {"pathway": {"path": ["photo-overlay"]}, "label":"image_key"},
   {"deref-msg": {"allowAllAuthors": true}},
-  {"pathway": {"path": ["value", "content", "blob"]}},
+  {"pathway": {"path": ["value", "content"]}, "label": "image_content"},
+  {"pathway": {"path": ["blob"]}, "label": "blob"},
   {"debounce": {"ms": 2000}},
   {"save-blob-to-tmpdir": {}},
-  {"move-file": {"to": "/var/basf/photo-overlay", "clobber": true}}
+  {"move-file": {"to": "/var/basf/photo-overlay", "clobber": true}, "label": "filename"}
 ]
 
