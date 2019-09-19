@@ -4,7 +4,7 @@
   "description": "Like pathway, but for mutable ssb messages",
   "main": "index.js",
   "bin": {
-    "treos-local-config": "bin/local-config"
+    "treos-local-config": "bin/local-config.js"
   },
   "scripts": {
     "test": "tape test.js"
